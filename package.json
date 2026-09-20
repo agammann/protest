@@ -1,0 +1,51 @@
+{
+  "name": "protest-toolkit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plan your protest. Create your flier. Publish your site to your own GitHub Pages.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node src/server.mjs",
+    "build": "vite build",
+    "start": "node src/server.mjs --open",
+    "mcp": "node src/mcp.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "tsc --noEmit",
+    "package": "node scripts/package.mjs"
+  },
+  "dependencies": {
+    "@js-temporal/polyfill": "^0.5.1",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@resvg/resvg-js": "^2.6.2",
+    "archiver": "^7.0.1",
+    "express": "^5.1.0",
+    "pdfkit": "^0.17.2",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "svg-to-pdfkit": "^0.1.8",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.3",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7"
+  },
+  "files": [
+    "dist",
+    "src",
+    "public",
+    "docs",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md",
+    "THIRD_PARTY_NOTICES.md",
+    "tools/*LICENSE*"
+  ]
+}

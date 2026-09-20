@@ -1,0 +1,4 @@
+export type Project={version:1;id:string;example:boolean;title:string;reason:string;demand:string;organizer:string;date:string;startTime:string;endTime:string;timezone:string;location:string;address:string;meetingPoint:string;expectations:string;accessibility:string;bring:string;contact:string;sources:{title:string;url:string}[];status:'scheduled'|'updated'|'postponed'|'cancelled'|'completed';update:string;theme:'signal'|'broadcast'|'press';format:'letter'|'a4';privateNotes:string;checks:string[];repo:string};
+export type Guide={id:string;title:string;body:string};
+export type Plan={planId:string;repository:string;url:string;exists:boolean;revision:string;files:{name:string;bytes:number}[];publicDetails:Omit<Project,'privateNotes'|'checks'|'repo'>;example:boolean};
+export type Deployment={state:string;message:string;url:string;repository:string;commit?:string;verifiedAt?:string;hasUnpublishedChanges?:boolean};
