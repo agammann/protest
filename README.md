@@ -10,7 +10,7 @@ Free software under the [MIT license](LICENSE). No Protest account, subscription
 
 ## Start here
 
-Download the Windows portable ZIP from [Releases](https://github.com/agammann/protest/releases), extract the entire folder, then double click **Start Protest.cmd**. Keep its terminal window open while you work. The app opens at `http://127.0.0.1:4317`.
+Download the Windows portable ZIP from [Releases](https://github.com/agammann/protest/releases), extract the entire folder, then double click **Start Protest.cmd**. Keep its terminal window open while you work. The app normally opens at `http://127.0.0.1:4317`. If that port is occupied, it opens an available local port automatically.
 
 1. **Purpose:** explain why you are gathering, the concrete change you want, and who is organizing.
 2. **Details:** add the date, time zone, full address, exact meeting point, accessibility information, and what participants should expect.
@@ -18,6 +18,8 @@ Download the Windows portable ZIP from [Releases](https://github.com/agammann/pr
 4. **Publish:** sign into GitHub, choose a site name, review the public files, and approve publication. Protest verifies that the live page contains the published revision before adding its QR code to your downloaded flier.
 
 The first draft is explicitly marked as fictional. Choose **New draft** to create a real event. Use **Save project** to back up your draft before replacing it; the backup includes private planning notes.
+
+See a [live fictional demonstration](https://agammann.github.io/protest-example/) showing a cancellation notice. No actual event is advertised.
 
 Read [the organizing guide](docs/GUIDE.md), [privacy and security](SECURITY.md), and [verification notes](docs/VERIFICATION.md).
 
@@ -41,7 +43,7 @@ pnpm build
 pnpm start
 ```
 
-For checks: `pnpm check` and `pnpm test`. `pnpm dev` runs the local server against the latest built frontend; rebuild after UI changes. Drafts live in `.protest/`. Set `PROTEST_DATA_DIR` to move them, `PROTEST_PORT` to change the port, or `PROTEST_GH_PATH` to select a GitHub CLI executable.
+For checks: `pnpm check` and `pnpm test`. Format source with `pnpm exec prettier --write "src/*.mjs" "ui/*.{ts,tsx,css}" "test/*.mjs" "scripts/*.mjs"`. `pnpm dev` runs the local server against the latest built frontend; rebuild after UI changes. Drafts live in `.protest/`. Set `PROTEST_DATA_DIR` to move them, `PROTEST_PORT` to change the port, or `PROTEST_GH_PATH` to select a GitHub CLI executable.
 
 ## Optional MCP
 

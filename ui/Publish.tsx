@@ -1,13 +1,268 @@
-import {useEffect,useState} from 'react';
-import type {Project,Plan,Deployment} from './types';
-import {Field,Arrow} from './Fields';
-import {api} from './api';
-export function Publish({p,change,flush,onError,onDownload}:{p:Project;change:(key:keyof Project,value:any)=>void;flush:()=>Promise<void>;onError:(v:string)=>void;onDownload:(type:string)=>void}){
-  const [account,setAccount]=useState<any>(null),[login,setLogin]=useState<any>(null),[plan,setPlan]=useState<Plan|null>(null),[confirmed,setConfirmed]=useState(false),[busy,setBusy]=useState(false),[deployment,setDeployment]=useState<Deployment|null>(null);
-  const run=async(fn:()=>Promise<void>)=>{setBusy(true);onError('');try{await flush();await fn();}catch(e){onError((e as Error).message);}finally{setBusy(false);}};
-  useEffect(()=>{api('github').then(setAccount).catch(e=>onError(e.message));api('github/login').then(setLogin).catch(()=>{});api('publish/status').then(setDeployment).catch(()=>{});},[]);
-  useEffect(()=>{setPlan(null);setConfirmed(false);},[p]);
-  useEffect(()=>{if(login?.state!=='pending')return;const id=setInterval(()=>{api('github/login').then(v=>{setLogin(v);if(v.state==='complete')api('github').then(setAccount);}).catch(()=>{});},2000);return()=>clearInterval(id);},[login?.state]);
-  useEffect(()=>{if(!['building','publishing'].includes(deployment?.state||''))return;const id=setInterval(()=>api('publish/status').then(setDeployment).catch(()=>{}),6000);return()=>clearInterval(id);},[deployment?.state]);
-  return <><h2>Put it out there.</h2><p className="intro">Your GitHub account. Your site. Your voice.</p><div className="github-state"><strong>{account?.connected?`Connected as ${account.login}`:'Connect your GitHub account'}</strong><p>Your site and its files will be public. GitHub provides the free address and hosting.</p>{!account?.connected&&<button disabled={busy||login?.state==='pending'} onClick={()=>run(async()=>setLogin(await api('github/login','POST',{})))}>Sign in with GitHub <Arrow/></button>}{login?.message&&<p role="status">{login.message}</p>}{login?.code&&<div className="device-code"><strong>{login.code}</strong><a href={login.url} target="_blank" rel="noreferrer">Open GitHub sign in</a></div>}</div><Field label="Site name" value={p.repo} onChange={v=>change('repo',v.toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,70))} help={account?.login?`${account.login.toLowerCase()}.github.io/${p.repo||'your-site'}/`:'A short name using lowercase letters, numbers, and hyphens.'}/><p className="hint">Only the public event details and generated materials are uploaded. Your private planning notes stay on this computer. Published content can remain in GitHub history.</p><button className="primary wide" disabled={busy||!account?.connected} onClick={()=>run(async()=>{setPlan(await api('publish/prepare','POST',{}));setConfirmed(false);})}>{busy?'Working…':'Review publication'}<Arrow/></button>{plan&&<section className="review"><h3>Review what goes public.</h3><p><strong>{plan.repository}</strong><br/>{plan.url}</p>{plan.example&&<p className="warning">This is a fictional example. Its site and flier will be clearly marked as a demonstration.</p>}<details open><summary>Public event details</summary><dl>{Object.entries(plan.publicDetails).filter(([k])=>!['id','version','theme','format','example'].includes(k)).map(([k,v])=><div key={k}><dt>{k}</dt><dd>{typeof v==='string'?v:JSON.stringify(v)}</dd></div>)}</dl></details><details><summary>{plan.files.length} public files</summary><ul>{plan.files.map(f=><li key={f.name}>{f.name} ({Math.ceil(f.bytes/1024)} KB)</li>)}</ul></details><label className="check"><input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/><span>I reviewed these details and want to publish them publicly to {plan.repository}.</span></label><button className="primary wide" disabled={!confirmed||busy} onClick={()=>run(async()=>{setDeployment({state:'publishing',message:'Publishing your reviewed files…',url:plan.url,repository:plan.repository});try{setDeployment(await api('publish','POST',{planId:plan.planId,confirmPublic:true}));setPlan(null);}catch(e){setDeployment(await api('publish/status'));throw e;}})}>Publish reviewed version <Arrow/></button></section>}{deployment&&<section className={'deployment '+(deployment.state==='live'?'live':'')} aria-live="polite"><h3>{deployment.state==='live'?'Your voice is live.':deployment.state==='error'?'Publication needs attention.':'Publishing to GitHub Pages…'}</h3><p>{deployment.message}</p>{deployment.hasUnpublishedChanges&&<p>You have changes that are not published yet. Review a new publication to update the site.</p>}<a href={deployment.url} target="_blank" rel="noreferrer">{deployment.url}</a><div className="button-row"><button onClick={()=>run(async()=>setDeployment(await api('publish/status')))} disabled={busy}>Check live site</button>{deployment.state==='live'&&<button onClick={()=>onDownload('pdf')}>Download flier</button>}</div></section>}</>;
+import { useEffect, useState } from "react";
+import type { Project, Plan, Deployment } from "./types";
+import { Field, Arrow } from "./Fields";
+import { api } from "./api";
+export function Publish({
+  p,
+  change,
+  flush,
+  onError,
+  onDownload,
+}: {
+  p: Project;
+  change: (key: keyof Project, value: any) => void;
+  flush: () => Promise<void>;
+  onError: (v: string) => void;
+  onDownload: (type: string) => void;
+}) {
+  const [account, setAccount] = useState<any>(null),
+    [login, setLogin] = useState<any>(null),
+    [plan, setPlan] = useState<Plan | null>(null),
+    [confirmed, setConfirmed] = useState(false),
+    [busy, setBusy] = useState(false),
+    [deployment, setDeployment] = useState<Deployment | null>(null);
+  const run = async (fn: () => Promise<void>) => {
+    setBusy(true);
+    onError("");
+    try {
+      await flush();
+      await fn();
+    } catch (e) {
+      onError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  useEffect(() => {
+    api("github")
+      .then(setAccount)
+      .catch((e) => onError(e.message));
+    api("github/login")
+      .then(setLogin)
+      .catch(() => {});
+    api("publish/status")
+      .then(setDeployment)
+      .catch(() => {});
+  }, []);
+  useEffect(() => {
+    setPlan(null);
+    setConfirmed(false);
+  }, [p]);
+  useEffect(() => {
+    if (login?.state !== "pending") return;
+    const id = setInterval(() => {
+      api("github/login")
+        .then((v) => {
+          setLogin(v);
+          if (v.state === "complete") api("github").then(setAccount);
+        })
+        .catch(() => {});
+    }, 2000);
+    return () => clearInterval(id);
+  }, [login?.state]);
+  useEffect(() => {
+    if (!["building", "publishing"].includes(deployment?.state || "")) return;
+    const id = setInterval(
+      () =>
+        api("publish/status")
+          .then(setDeployment)
+          .catch(() => {}),
+      6000,
+    );
+    return () => clearInterval(id);
+  }, [deployment?.state]);
+  return (
+    <>
+      <h2>Put it out there.</h2>
+      <p className="intro">Your GitHub account. Your site. Your voice.</p>
+      <div className="github-state">
+        <strong>
+          {account?.connected
+            ? `Connected as ${account.login}`
+            : "Connect your GitHub account"}
+        </strong>
+        <p>
+          Your site and its files will be public. GitHub provides the free
+          address and hosting.
+        </p>
+        {!account?.connected && (
+          <button
+            disabled={busy || login?.state === "pending"}
+            onClick={() =>
+              run(async () => setLogin(await api("github/login", "POST", {})))
+            }
+          >
+            Sign in with GitHub <Arrow />
+          </button>
+        )}
+        {login?.message && <p role="status">{login.message}</p>}
+        {login?.code && (
+          <div className="device-code">
+            <strong>{login.code}</strong>
+            <a href={login.url} target="_blank" rel="noreferrer">
+              Open GitHub sign in
+            </a>
+          </div>
+        )}
+      </div>
+      <Field
+        label="Site name"
+        value={p.repo}
+        onChange={(v) =>
+          change(
+            "repo",
+            v
+              .toLowerCase()
+              .replace(/[^a-z0-9-]/g, "")
+              .slice(0, 70),
+          )
+        }
+        help={
+          account?.login
+            ? `${account.login.toLowerCase()}.github.io/${p.repo || "your-site"}/`
+            : "A short name using lowercase letters, numbers, and hyphens."
+        }
+      />
+      <p className="hint">
+        Only the public event details and generated materials are uploaded. Your
+        private planning notes stay on this computer. Published content can
+        remain in GitHub history.
+      </p>
+      <button
+        className="primary wide"
+        disabled={busy || !account?.connected}
+        onClick={() =>
+          run(async () => {
+            setPlan(await api("publish/prepare", "POST", {}));
+            setConfirmed(false);
+          })
+        }
+      >
+        {busy ? "Working…" : "Review publication"}
+        <Arrow />
+      </button>
+      {plan && (
+        <section className="review">
+          <h3>Review what goes public.</h3>
+          <p>
+            <strong>{plan.repository}</strong>
+            <br />
+            {plan.url}
+          </p>
+          {plan.example && (
+            <p className="warning">
+              This is a fictional example. Its site and flier will be clearly
+              marked as a demonstration.
+            </p>
+          )}
+          <details open>
+            <summary>Public event details</summary>
+            <dl>
+              {Object.entries(plan.publicDetails)
+                .filter(
+                  ([k]) =>
+                    !["id", "version", "theme", "format", "example"].includes(
+                      k,
+                    ),
+                )
+                .map(([k, v]) => (
+                  <div key={k}>
+                    <dt>{k}</dt>
+                    <dd>{typeof v === "string" ? v : JSON.stringify(v)}</dd>
+                  </div>
+                ))}
+            </dl>
+          </details>
+          <details>
+            <summary>{plan.files.length} public files</summary>
+            <ul>
+              {plan.files.map((f) => (
+                <li key={f.name}>
+                  {f.name} ({Math.ceil(f.bytes / 1024)} KB)
+                </li>
+              ))}
+            </ul>
+          </details>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={confirmed}
+              onChange={(e) => setConfirmed(e.target.checked)}
+            />
+            <span>
+              I reviewed these details and want to publish them publicly to{" "}
+              {plan.repository}.
+            </span>
+          </label>
+          <button
+            className="primary wide"
+            disabled={!confirmed || busy}
+            onClick={() =>
+              run(async () => {
+                setDeployment({
+                  state: "publishing",
+                  message: "Publishing your reviewed files…",
+                  url: plan.url,
+                  repository: plan.repository,
+                });
+                try {
+                  setDeployment(
+                    await api("publish", "POST", {
+                      planId: plan.planId,
+                      confirmPublic: true,
+                    }),
+                  );
+                  setPlan(null);
+                } catch (e) {
+                  setDeployment(await api("publish/status"));
+                  throw e;
+                }
+              })
+            }
+          >
+            Publish reviewed version <Arrow />
+          </button>
+        </section>
+      )}
+      {deployment && (
+        <section
+          className={
+            "deployment " + (deployment.state === "live" ? "live" : "")
+          }
+          aria-live="polite"
+        >
+          <h3>
+            {deployment.state === "live"
+              ? "Your voice is live."
+              : deployment.state === "error"
+                ? "Publication needs attention."
+                : "Publishing to GitHub Pages…"}
+          </h3>
+          <p>{deployment.message}</p>
+          {deployment.hasUnpublishedChanges && (
+            <p>
+              You have changes that are not published yet. Review a new
+              publication to update the site.
+            </p>
+          )}
+          <a href={deployment.url} target="_blank" rel="noreferrer">
+            {deployment.url}
+          </a>
+          <div className="button-row">
+            <button
+              onClick={() =>
+                run(async () => setDeployment(await api("publish/status")))
+              }
+              disabled={busy}
+            >
+              Check live site
+            </button>
+            {deployment.state === "live" && (
+              <button onClick={() => onDownload("pdf")}>Download flier</button>
+            )}
+          </div>
+        </section>
+      )}
+    </>
+  );
 }
