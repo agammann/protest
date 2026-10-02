@@ -1,11 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { GitHubPublisher } from "../src/github.mjs";
 import { Store } from "../src/store.mjs";
 import { exampleProject } from "../src/project.mjs";
+import { artifactRevision } from "../src/render.mjs";
+import { startServer } from "../src/server.mjs";
 const missing = () => {
   const e = new Error("Not found");
   e.status = 404;
@@ -81,5 +83,58 @@ test("unrelated and private repositories are never taken over", async () => {
       pub.prepare(p),
       privateRepo ? /public event repositories/ : /another project/,
     );
+  }
+});
+
+test("failed live verification disables QR downloads until the revision is verified again", async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), "protest-verification-"));
+  const store = new Store(dir),
+    p = exampleProject();
+  await store.save(p);
+  const revision = await artifactRevision(p);
+  const deployment = {
+    projectId: p.id,
+    state: "live",
+    revision,
+    url: "https://organizer.github.io/fictional-event/",
+    startedAt: Date.now(),
+  };
+  let outcome = "match";
+  const originalFetch = globalThis.fetch;
+  t.mock.method(globalThis, "fetch", (url, options) => {
+    if (!String(url).startsWith(deployment.url))
+      return originalFetch(url, options);
+    if (outcome === "offline")
+      return Promise.reject(new Error("Fixture outage"));
+    return Promise.resolve(
+      new Response(
+        outcome === "match"
+          ? `<meta name="protest-revision" content="${revision}">`
+          : "Different deployed revision",
+      ),
+    );
+  });
+  const publisher = new GitHubPublisher(store, () =>
+    assert.fail("No GitHub API calls expected"),
+  );
+  const app = await startServer({ port: 0, dataDir: dir, publisher });
+  const downloadedSVG = async () =>
+    (await fetch(app.origin + "/api/download/svg")).text();
+  try {
+    for (const failure of ["mismatch", "offline"]) {
+      await store.write("deployment.json", deployment);
+      assert.match(await downloadedSVG(), /SCAN FOR DETAILS/);
+      outcome = failure;
+      assert.equal((await publisher.status(p)).state, "building");
+      assert.equal((await store.read("deployment.json")).state, "building");
+      assert.doesNotMatch(await downloadedSVG(), /SCAN FOR DETAILS/);
+      outcome = "match";
+      assert.equal((await publisher.status(p)).state, "live");
+      assert.match(await downloadedSVG(), /SCAN FOR DETAILS/);
+    }
+  } finally {
+    app.server.closeAllConnections();
+    await new Promise((resolve) => app.server.close(resolve));
+    await rm(dir, { recursive: true, force: true });
   }
 });

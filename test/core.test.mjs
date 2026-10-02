@@ -12,7 +12,13 @@ import {
   readiness,
   timing,
 } from "../src/project.mjs";
-import { buildFiles, siteHTML, calendar, posterPNG } from "../src/render.mjs";
+import {
+  buildFiles,
+  siteHTML,
+  calendar,
+  posterPNG,
+  posterSVG,
+} from "../src/render.mjs";
 import { Store } from "../src/store.mjs";
 import { startServer } from "../src/server.mjs";
 
@@ -215,4 +221,16 @@ test("cancelled and postponed calendar exports do not claim a confirmed event", 
       "STATUS:TENTATIVE",
     ),
   );
+});
+
+test("poster status remains visible on fictional examples and inactive drafts do not invite attendance", async () => {
+  for (const status of ["cancelled", "postponed", "completed"]) {
+    for (const example of [true, false]) {
+      const svg = await posterSVG({ ...exampleProject(), status, example });
+      assert.ok(svg.includes(status.toUpperCase()), status);
+      assert.ok(!svg.includes("SHOW UP. SPEAK UP."), status);
+      assert.equal(svg.includes("FICTIONAL EXAMPLE"), example);
+    }
+  }
+  assert.ok((await posterSVG(exampleProject())).includes("SHOW UP. SPEAK UP."));
 });

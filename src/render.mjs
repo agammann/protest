@@ -140,11 +140,17 @@ export async function posterSVG(p, url = "", shape = "letter") {
     );
   }
   let top = m;
-  if (p.example || p.status !== "scheduled") {
-    parts.push(
-      `<rect x="0" y="0" width="${W}" height="34" fill="${ink}"/><text x="${W / 2}" y="24" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="20" fill="${paper}">${p.example ? "FICTIONAL EXAMPLE • NOT AN ACTUAL EVENT" : esc(p.status.toUpperCase())}</text>`,
+  const notices = [
+    ...(p.example ? ["FICTIONAL EXAMPLE • NOT AN ACTUAL EVENT"] : []),
+    ...(p.status !== "scheduled" ? [p.status.toUpperCase()] : []),
+  ];
+  if (notices.length) {
+    notices.forEach((notice, i) =>
+      parts.push(
+        `<rect x="0" y="${i * 34}" width="${W}" height="34" fill="${ink}"/><text x="${W / 2}" y="${i * 34 + 24}" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="20" fill="${paper}">${esc(notice)}</text>`,
+      ),
     );
-    top += 20;
+    top += notices.length * 34 - 14;
   }
   const footerTop = H - m - (url ? W * 0.2 : H * 0.09),
     area = footerTop - top - 20;
@@ -221,8 +227,11 @@ export async function posterSVG(p, url = "", shape = "letter") {
       `<text x="${m + q + 20}" y="${bottom - q + 78}" font-family="Barlow Condensed" font-size="${sz}" fill="${ink}">${esc(short)}</text>`,
     );
   } else {
+    const caption = ["cancelled", "postponed", "completed"].includes(p.status)
+      ? `EVENT ${p.status.toUpperCase()}`
+      : "SHOW UP. SPEAK UP.";
     parts.push(
-      `<rect x="${m}" y="${bottom - H * 0.09}" width="${inner}" height="${H * 0.09}" fill="${ink}"/><text x="${W / 2}" y="${bottom - H * 0.022}" text-anchor="middle" font-family="Anton" font-size="${W * 0.063}" fill="${paper}">SHOW UP. SPEAK UP.</text>`,
+      `<rect x="${m}" y="${bottom - H * 0.09}" width="${inner}" height="${H * 0.09}" fill="${ink}"/><text x="${W / 2}" y="${bottom - H * 0.022}" text-anchor="middle" font-family="Anton" font-size="${W * 0.063}" fill="${paper}">${caption}</text>`,
     );
   }
   parts.push("</svg>");

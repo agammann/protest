@@ -426,12 +426,14 @@ export class GitHubPublisher {
           d.state = "building";
           d.message =
             "The expected version is not currently available. Check again shortly.";
+          await this.store.write("deployment.json", d);
         }
       } catch {
         if (d.state === "live") {
           d.state = "building";
           d.message =
             "Could not verify the live page. Check your connection and try again.";
+          await this.store.write("deployment.json", d);
         }
       }
     }

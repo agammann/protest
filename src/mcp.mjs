@@ -14,7 +14,7 @@ import {
 } from "./project.mjs";
 import { posterPDF, posterPNG, posterSVG, buildFiles } from "./render.mjs";
 const store = new Store(process.env.PROTEST_DATA_DIR || join(ROOT, ".protest"));
-const server = new McpServer({ name: "protest", version: "0.1.0" });
+const server = new McpServer({ name: "protest", version: "0.1.1" });
 const result = (v) => ({
   content: [{ type: "text", text: JSON.stringify(v, null, 2) }],
 });

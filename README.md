@@ -33,6 +33,8 @@ Read [the organizing guide](docs/GUIDE.md), [privacy and security](SECURITY.md),
 
 No attendance tracking, analytics, mailing list, payment, or hosted database is included. GitHub supplies hosting and imposes its own account requirements, terms, and [Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits). Public repositories support Pages on GitHub Free. The software cannot guarantee anonymity, event turnout, or continuing hosting availability.
 
+Fliers and images show the event status even for fictional examples. Cancelled, postponed and completed draft exports replace the invitation to attend with the current status. If a live-site check fails after publication, new downloads omit the QR code until the expected revision is verified again; previously downloaded or printed materials are unchanged.
+
 ## Run from source
 
 Requires Node.js 22 or newer, pnpm 10, and [GitHub CLI](https://cli.github.com/) for publication. Windows, macOS, and Linux source use is supported by the code; see verification notes for what has actually been tested.
