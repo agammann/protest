@@ -13,8 +13,9 @@ const data=await mkdtemp(path.join(tmpdir(),'protest-browser-'));
 const report={nativeRequired:native,fallback:'Browser plugin not available',checks:[],errors:[],unexpectedRequests:[]};
 const disconnected={account:async()=>({connected:false,message:'No account connected for the isolated check.'}),login:{state:'idle'},status:async()=>null};
 let instance,publicServer,browser;
+const editorOrigins=new Set();
 const stop=async()=>{if(instance){instance.server.closeAllConnections();await new Promise(r=>instance.server.close(r));instance=null;}};
-const start=async()=>{instance=await startServer({port:0,dataDir:data,publisher:disconnected});return instance.origin;};
+const start=async()=>{instance=await startServer({port:0,dataDir:data,publisher:disconnected});editorOrigins.add(instance.origin);return instance.origin;};
 try{
  let base=await start();
  browser=await chromium.launch({headless:true,...(process.env.PROTEST_BROWSER_EXECUTABLE?{executablePath:process.env.PROTEST_BROWSER_EXECUTABLE}:native?{channel:'chrome'}:{}),args:native?['--enable-features=WebMCP,WebMCPTesting']:[]});
@@ -22,7 +23,7 @@ try{
  const context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
  const page=await context.newPage();
  page.on('pageerror',e=>report.errors.push(e.message));
- await context.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin!==base&&!u.href.startsWith('blob:')){report.unexpectedRequests.push(u.origin);return route.abort();}return route.continue();});
+ await context.route('**/*',route=>{const u=new URL(route.request().url());if(!editorOrigins.has(u.origin)&&!u.href.startsWith('blob:')){report.unexpectedRequests.push(u.origin);return route.abort();}return route.continue();});
  const saved=()=>page.getByText('Saved on this computer',{exact:true}).waitFor();
  const download=async(name,file)=>{const pending=page.waitForEvent('download');await page.getByRole('button',{name,exact:true}).click();const dl=await pending;await dl.saveAs(path.join(out,file));return readFile(path.join(out,file));};
  const layout=async(label)=>{for(const width of [1440,390,320]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth),width);await page.screenshot({path:path.join(out,label+'-'+width+'.png'),fullPage:true});}report.checks.push(label+' fits desktop and 390/320 pixels');};
