@@ -1,12 +1,12 @@
 {
   "name": "protest-toolkit",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "private": true,
   "description": "Plan your protest. Create your flier. Publish your site to your own GitHub Pages.",
   "type": "module",
   "license": "MIT",
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "scripts": {
     "dev": "node src/server.mjs",
@@ -15,11 +15,16 @@
     "mcp": "node src/mcp.mjs",
     "test": "node --test test/*.test.mjs",
     "check": "tsc --noEmit",
-    "package": "node scripts/package.mjs"
+    "package": "node scripts/package.mjs",
+    "test:e2e": "node scripts/check-browser.mjs",
+    "test:webmcp": "node scripts/check-browser.mjs --native",
+    "test:portable": "node scripts/check-portable.mjs",
+    "security:audit": "pnpm audit --json",
+    "package:source": "node scripts/package-release.mjs"
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.5.1",
-    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@modelcontextprotocol/sdk": "^1.31.0",
     "@resvg/resvg-js": "^2.6.2",
     "archiver": "^7.0.1",
     "express": "^5.1.0",
@@ -36,7 +41,8 @@
     "@vitejs/plugin-react": "^5.0.3",
     "prettier": "3.6.2",
     "typescript": "^5.9.2",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "playwright": "1.63.0"
   },
   "files": [
     "dist",
@@ -48,5 +54,6 @@
     "SECURITY.md",
     "THIRD_PARTY_NOTICES.md",
     "tools/*LICENSE*"
-  ]
+  ],
+  "packageManager": "pnpm@11.19.0"
 }
