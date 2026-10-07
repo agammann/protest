@@ -2,6 +2,22 @@
 
 This file distinguishes local checks from checks that need an authenticated GitHub account.
 
+## V1 candidate verification
+
+The isolated version 1.0.0 candidate was checked on Windows with Node 24.19.0 and pnpm 11.19.0. The frozen-lockfile install, TypeScript check, production build and all 16 existing tests passed. Available dependency patches were applied; the retained full audit reported zero advisories at verification time.
+
+Ordinary and native-browser journeys passed in Chrome for Testing 155.0.8059.12. They used a temporary local draft and a newly generated fictional public page, with no GitHub publication. Both public WebMCP tools were executed through the browser's real native API. The editor and generated page fit 1440, 390 and 320 pixel widths; desktop and mobile screenshots were inspected. No page runtime errors or unexpected editor network requests occurred.
+
+The journeys exercised editing and reload, private notes, invalid project import, a controlled failed save followed by a corrected save, cancellation, all four material downloads, site ZIP generation, a complete server stop/restart, draft replacement and full project-backup restoration. Stored project fields and event identity matched exactly after restoration. Private-note sentinels were present in the full project backup and absent from public materials and native tool results.
+
+A fresh extraction of the Windows candidate ZIP ran its included Node 24.19.0 and GitHub CLI 2.101.0. Its actual server entrypoint served the built editor, generated PDF/SVG/square PNG/story PNG/site ZIP outputs and retained the exact draft across a restart. All six real MCP stdio tools were called using the package's included SDK; replacement consent, public/private filtering and project restore passed.
+
+The portable packaging step now includes the workspace override configuration, so a production-only frozen installation preserves the patched dependency set. The archive retains MIT source licensing, Node/GitHub CLI notices and bundled font notices.
+
+Current publication tests use controlled GitHub responses. The authenticated October 2 Pages publication below is historical evidence for the unchanged publishing protocol, not a new v1 deployment. The excluded demonstration repository was not inspected or modified during these candidate checks. Physical printing, phone-camera scanning and recruited-organizer usability research remain untested.
+
+
+
 ## October 2, 2026 follow-up
 
 On Windows with Node 24.19.0, a frozen-lockfile install, TypeScript check, production build and all 16 tests passed. Two added regressions first failed against the earlier implementation: a failed live-site check left QR-bearing downloads enabled, and fictional poster notices hid event status. The tests now cover mismatch/outage and subsequent recovery through real local SVG download handlers, plus cancelled, postponed and completed poster status. Live-site responses in the QR regression are controlled fixtures, not a new GitHub deployment.

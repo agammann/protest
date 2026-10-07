@@ -5,3 +5,7 @@ release/
 *.log
 .env*
 !\.env.example
+
+release-artifacts/
+test-results/
+reports/

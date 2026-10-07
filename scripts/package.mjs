@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import archiver from "archiver";
 import { ROOT } from "../src/paths.mjs";
-if (process.platform !== "win32")
+if (process.platform !== "win32" || process.arch !== "x64")
   throw new Error("This portable packager currently supports Windows only.");
 const pnpm = process.env.PROTEST_PNPM || process.env.npm_execpath;
 const gh = process.env.PROTEST_GH_PATH;
@@ -14,9 +14,10 @@ if (!pnpm || !gh)
     "Run with pnpm package and set PROTEST_GH_PATH to an official GitHub CLI executable.",
   );
 const pkg = JSON.parse(await readFile(join(ROOT, "package.json"), "utf8"));
-const release = join(ROOT, "release"),
-  stage = join(release, `stage-${Date.now()}`),
+const release = join(ROOT, "release-artifacts"),
+  stage = join(ROOT, "release", `stage-${Date.now()}`),
   app = join(stage, "Protest");
+await mkdir(release, { recursive: true });
 await mkdir(stage, { recursive: true });
 await mkdir(app, { recursive: true });
 for (const name of [
@@ -28,9 +29,11 @@ for (const name of [
   "LICENSE",
   "README.md",
   "SECURITY.md",
+  "CHANGELOG.md",
   "THIRD_PARTY_NOTICES.md",
   "package.json",
   "pnpm-lock.yaml",
+  "pnpm-workspace.yaml",
 ])
   await cp(join(ROOT, name), join(app, name), { recursive: true });
 const r = spawnSync(
@@ -40,7 +43,6 @@ const r = spawnSync(
     "install",
     "--prod",
     "--frozen-lockfile",
-    "--ignore-workspace",
     "--ignore-scripts",
     "--config.node-linker=hoisted",
   ],
@@ -96,4 +98,7 @@ await writeFile(
   zipPath + ".sha256",
   `${hash}  ${zipPath.split(/[\\/]/).pop()}\n`,
 );
+const sourceName = `protest_${pkg.version}_source.zip`;
+const sourceChecksum = await readFile(join(release, sourceName + '.sha256'), 'utf8');
+await writeFile(join(release, 'SHA256SUMS'), sourceChecksum + `${hash}  ${zipPath.split(/[\\/]/).pop()}\n`);
 console.log(`Created ${zipPath}\nSHA256 ${hash}`);
