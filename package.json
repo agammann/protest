@@ -33,7 +33,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "svg-to-pdfkit": "^0.1.8",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/react": "^19.1.13",
