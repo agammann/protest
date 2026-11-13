@@ -24,7 +24,7 @@ const link = z
 export const projectSchema = z
   .object({
     version: z.literal(1),
-    id: z.string().uuid(),
+    id: z.guid(),
     example: z.boolean(),
     title: text(100),
     reason: text(1400),
