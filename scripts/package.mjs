@@ -3,7 +3,7 @@ import { createWriteStream } from "node:fs";
 import { resolve, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import archiver from "archiver";
+import { ZipArchive } from "archiver";
 import { ROOT } from "../src/paths.mjs";
 if (process.platform !== "win32" || process.arch !== "x64")
   throw new Error("This portable packager currently supports Windows only.");
@@ -63,7 +63,7 @@ await writeFile(
 );
 const zipPath = join(release, `Protest-${pkg.version}-windows-x64.zip`);
 const output = createWriteStream(zipPath),
-  zip = archiver("zip", { zlib: { level: 9 } });
+  zip = new ZipArchive({ zlib: { level: 9 } });
 const done = new Promise((resolve, reject) => {
   output.on("close", resolve);
   output.on("error", reject);

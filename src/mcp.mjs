@@ -73,7 +73,7 @@ server.registerTool(
     description:
       "Update supplied fields in the local draft. Uses an expected project ID to avoid editing a different draft. Does not publish or include private notes.",
     inputSchema: {
-      projectId: z.string().uuid(),
+      projectId: z.guid(),
       changes: projectSchema
         .omit({
           version: true,
