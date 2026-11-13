@@ -4,7 +4,7 @@ import { resolve, join } from "node:path";
 import { existsSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import archiver from "archiver";
+import { ZipArchive } from "archiver";
 import { Store } from "./store.mjs";
 import { ROOT } from "./paths.mjs";
 import {
@@ -170,7 +170,7 @@ export async function startServer({
         if (issues.length) throw new Error(issues.join(" "));
         const { files } = await buildFiles(p, url);
         res.attachment("protest-site.zip");
-        const zip = archiver("zip", { zlib: { level: 9 } });
+        const zip = new ZipArchive({ zlib: { level: 9 } });
         zip.on("error", (e) => res.destroy(e));
         zip.pipe(res);
         for (const [name, data] of Object.entries(files))
