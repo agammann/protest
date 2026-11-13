@@ -42,6 +42,8 @@ jobs:
       - if: runner.os == 'Linux'
         run: pnpm test:e2e
       - if: runner.os == 'Linux'
+        run: python scripts/check-site-zip.py test-results/ordinary/site.zip
+      - if: runner.os == 'Linux'
         run: pnpm test:webmcp
       - if: runner.os == 'Windows'
         run: pnpm exec playwright install chrome
