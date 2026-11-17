@@ -2,7 +2,15 @@
 
 This file distinguishes local checks from checks that need an authenticated GitHub account.
 
-## V1 candidate verification
+## November 17, 2026 source checks
+
+The unpublished 1.0.1 source candidate passed frozen installation, TypeScript checks, the production build and all 20 Node checks with Node 24.19.0 and pnpm 11.19.0 on Windows. Vite 7.3.8 includes the upstream development-server fix. The local stdio contract verifies the package version, a 128-element input ceiling and a complete 59-element create/update roundtrip through the actual SDK. All six tools were exercised against disposable local state.
+
+The original browser journeys passed in Chromium 153.0.8010.12 and Chrome for Testing 155.0.8059.12, with eleven check groups each. Both generated-page tools executed through the native API and returned read-only, untrusted-content hints. Private notes remained in the project backup and were absent from public outputs. Page errors and unexpected editor requests were empty. The separate baseline editor check exercised fictional cancellation, downloads, reload and exact project restoration with GitHub access disabled.
+
+The full dependency audit still fails on the [Picomatch advisory](https://github.com/advisories/GHSA-fc5q-39xc-vjpf). The npm registry reported latest version 4.0.7 and returned 404 for 4.0.8. The source and portable releases remain 1.0.0. No account connection, public publication or participant action was performed during these checks.
+
+## Earlier 1.0.0 verification
 
 The isolated version 1.0.0 candidate was checked on Windows with Node 24.19.0 and pnpm 11.19.0. The frozen-lockfile install, TypeScript check, production build and all 16 existing tests passed. Available dependency patches were applied; the retained full audit reported zero advisories at verification time.
 

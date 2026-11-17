@@ -8,6 +8,8 @@ Protest turns event details into a printable flier, social images, a calendar in
 
 Free software under the [MIT license](LICENSE). No Protest account, subscription, custom domain, or hosted backend is required. Publication uses your own GitHub account.
 
+Version 1.0.1 is an unpublished source candidate. The available source and Windows packages remain 1.0.0. The required dependency audit currently blocks publication on the unresolved Picomatch advisory.
+
 ## Start on Windows
 
 Download `Protest-1.0.0-windows-x64.zip` and `SHA256SUMS` from [Releases](https://github.com/agammann/protest/releases/tag/v1.0.0). Check the ZIP's SHA256 against its line in that file:
@@ -78,7 +80,7 @@ For local MCP, replace these paths with your installation paths:
 
 Windows portable users can use the included `node.exe` as `command`. The six local tools are `get_protest`, `create_protest`, `update_protest`, `check_protest`, `export_materials` and `prepare_publication`. They do not upload. Publication requires review in the editor. Avoid simultaneous browser and MCP edits to the same draft.
 
-Generated public sites register two read-only WebMCP tools, `get_protest_details` and `get_participant_instructions`, when supported by the browser. They expose only the public event data. Browser support is experimental; ordinary site navigation and downloads work without WebMCP.
+Generated public sites register two read-only WebMCP tools, `get_protest_details` and `get_participant_instructions`, when supported by the browser. They expose organizer-provided public event data and mark it as untrusted content in the 1.0.1 source candidate. Browser support is experimental; ordinary site navigation and downloads work without WebMCP.
 
 ## Develop and contribute
 
