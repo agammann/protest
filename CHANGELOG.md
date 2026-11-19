@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.1 (unreleased)
+## 1.0.1
 
 - Update Vite to 7.3.8 for the [upstream development-server advisory](https://github.com/vitejs/vite/security/advisories/GHSA-p4f5-76q4-ffq7).
 - Apply a 128-element ceiling to local stdio tool arguments and verify the complete supported nested input through the actual SDK.
