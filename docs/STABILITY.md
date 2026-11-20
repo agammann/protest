@@ -1,6 +1,8 @@
 # Protest v1 stability and recovery
 
-The v1 contract covers a single local draft, version-1 project JSON, PDF/SVG/PNG/calendar/site exports, reviewed publication to the organizer's own GitHub Pages repository, six local MCP tools and two public read-only WebMCP tools. Local and public data stay separate. Version 1.0.0 does not change the project schema or the generated publication protocol.
+The v1 contract covers a single local draft, version-1 project JSON, PDF/SVG/PNG/calendar/site exports, reviewed publication to the organizer's own GitHub Pages repository, six local MCP tools and two public read-only WebMCP tools. Local and public data stay separate.
+
+The unpublished 1.0.1 source candidate limits local stdio arguments to 128 combined object members and array elements. The largest supported nested input contains 59 elements, including twelve two-field source entries. Generated-page tools identify their public organizer-provided output as untrusted content.
 
 Windows x64 has a portable distribution. Source builds have Windows, Linux and macOS checks; native desktop/browser checks on every operating system are not implied. Physical printing, phone-camera scanning and recruited-organizer usability studies are outside the tested contract.
 

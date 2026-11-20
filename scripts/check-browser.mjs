@@ -10,7 +10,7 @@ const native=process.argv.includes('--native');
 const out=path.resolve('test-results/'+(native?'native':'ordinary'));
 await mkdir(out,{recursive:true});
 const data=await mkdtemp(path.join(tmpdir(),'protest-browser-'));
-const report={nativeRequired:native,fallback:'Browser plugin not available',checks:[],errors:[],unexpectedRequests:[]};
+const report={nativeRequired:native,checks:[],errors:[],unexpectedRequests:[]};
 const disconnected={account:async()=>({connected:false,message:'No account connected for the isolated check.'}),login:{state:'idle'},status:async()=>null};
 let instance,publicServer,browser;
 const editorOrigins=new Set();
@@ -72,7 +72,8 @@ try{
  if(native){
   await site.waitForFunction(async()=>typeof document.modelContext?.getTools==='function'&&(await document.modelContext.getTools()).length===2);
   const major=Number(report.browser.split('.')[0]);
-  const result=await site.evaluate(async newer=>{const tools=await document.modelContext.getTools();const result={};for(const name of ['get_protest_details','get_participant_instructions']){const tool=tools.find(t=>t.name===name);if(!tool)throw Error('Missing '+name);result[name]=await document.modelContext.executeTool(tool,newer?{}:'{}');}return {names:tools.map(t=>t.name),result};},major>=155);
+  const result=await site.evaluate(async newer=>{const tools=await document.modelContext.getTools();const result={};for(const name of ['get_protest_details','get_participant_instructions']){const tool=tools.find(t=>t.name===name);if(!tool)throw Error('Missing '+name);result[name]=await document.modelContext.executeTool(tool,newer?{}:'{}');}return {names:tools.map(t=>t.name),annotations:tools.map(t=>({name:t.name,...t.annotations})),result};},major>=155);
+  for(const tool of result.annotations){assert.equal(tool.readOnlyHint,true);assert.equal(tool.untrustedContentHint,true);}
   assert.deepEqual(result.names.sort(),['get_participant_instructions','get_protest_details']);assert(JSON.stringify(result.result).includes('cancelled'));assert(!JSON.stringify(result.result).includes('PRIVATE_PROTEST_V1_CANARY'));report.nativeWebMCP={passed:true,...result};
  }
  assert.deepEqual(report.errors,[]);assert.deepEqual(report.unexpectedRequests,[]);report.status='passed';

@@ -8,6 +8,7 @@ const app=path.resolve(process.env.PROTEST_PORTABLE_PATH||'../protest-portable-c
 const out=path.resolve('test-results/portable');await mkdir(out,{recursive:true});
 const data=await mkdtemp(path.join(tmpdir(),'protest-portable-'));
 const runtime=path.join(app,'node.exe');const report={checks:[],errors:[]};
+const metadata=JSON.parse(await readFile(path.join(app,'package.json'),'utf8'));
 let server,client;
 const stop=async()=>{if(!server)return;const exited=new Promise(r=>server.once('exit',r));server.kill();await exited;server=null;};
 const start=async()=>{
@@ -32,7 +33,7 @@ try{
  const {StdioClientTransport}=await import(pathToFileURL(path.join(sdk,'client/stdio.js')));
  client=new Client({name:'portable-verification',version:'1.0.0'});
  await client.connect(new StdioClientTransport({command:runtime,args:[path.join(app,'src/mcp.mjs')],env:{...process.env,PROTEST_DATA_DIR:data},stderr:'pipe'}));
- assert.equal(client.getServerVersion().version,'1.0.0');
+ assert.equal(client.getServerVersion().version,metadata.version);
  const {tools}=await client.listTools();assert.equal(tools.length,6);
  const call=async(name,args={})=>{const r=await client.callTool({name,arguments:args});assert(!r.isError,JSON.stringify(r));return JSON.parse(r.content[0].text);};
  const publicDraft=await call('get_protest');assert(!JSON.stringify(publicDraft).includes('PRIVATE_PORTABLE_V1_CANARY'));assert.equal(publicDraft.project.status,'cancelled');

@@ -1,6 +1,6 @@
 {
   "name": "protest-toolkit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Plan your protest. Create your flier. Publish your site to your own GitHub Pages.",
   "type": "module",
@@ -42,7 +42,7 @@
     "playwright": "1.63.0",
     "prettier": "3.6.2",
     "typescript": "^5.9.2",
-    "vite": "^7.3.7"
+    "vite": "7.3.8"
   },
   "files": [
     "dist",
