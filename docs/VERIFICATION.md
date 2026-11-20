@@ -8,7 +8,11 @@ The unpublished 1.0.1 source candidate passed frozen installation, TypeScript ch
 
 The original browser journeys passed in Chromium 153.0.8010.12 and Chrome for Testing 155.0.8059.12, with eleven check groups each. Both generated-page tools executed through the native API and returned read-only, untrusted-content hints. Private notes remained in the project backup and were absent from public outputs. Page errors and unexpected editor requests were empty. The separate baseline editor check exercised fictional cancellation, downloads, reload and exact project restoration with GitHub access disabled.
 
-The full dependency audit still fails on the [Picomatch advisory](https://github.com/advisories/GHSA-fc5q-39xc-vjpf). The npm registry reported latest version 4.0.7 and returned 404 for 4.0.8. The source and portable releases remain 1.0.0. No account connection, public publication or participant action was performed during these checks.
+At the November 17 check, the full dependency audit failed on the Picomatch advisory. The npm registry reported latest version 4.0.7 and returned 404 for 4.0.8. No account connection, public publication or participant action was performed during these checks.
+
+## November 19, 2026 dependency audit recheck
+
+GitHub withdrew the Picomatch advisory on November 18. The required dependency audit reported zero advisories on the candidate lockfile when rerun on November 19. The source candidate remains a draft. [Advisory record](https://github.com/advisories/GHSA-fc5q-39xc-vjpf)
 
 ## Earlier 1.0.0 verification
 

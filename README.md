@@ -8,7 +8,7 @@ Protest turns event details into a printable flier, social images, a calendar in
 
 Free software under the [MIT license](LICENSE). No Protest account, subscription, custom domain, or hosted backend is required. Publication uses your own GitHub account.
 
-Version 1.0.1 is an unpublished source candidate. The available source and Windows packages remain 1.0.0. The required dependency audit currently blocks publication on the unresolved Picomatch advisory.
+Version 1.0.1 is an unpublished source candidate. Version 1.0.0 provides the available source and Windows packages. See the [verification record](docs/VERIFICATION.md) for the candidate checks.
 
 ## Start on Windows
 
