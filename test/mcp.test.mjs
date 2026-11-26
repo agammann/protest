@@ -8,7 +8,7 @@ import { startServer } from "../src/server.mjs";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import metadata from "../package.json" with { type: "json" };
-test("MCP stdio creates, updates and exports real local materials without publication", async (t) => {
+test("MCP stdio creates, updates and exports real local materials without publication", async () => {
   const root = await mkdtemp(join(tmpdir(), "protest-mcp-"));
   const transport = new StdioClientTransport({
     command: process.execPath,
@@ -23,17 +23,16 @@ test("MCP stdio creates, updates and exports real local materials without public
     assert.equal(tools.length, 6);
     assert.ok(!tools.some((t) => t.name === "publish"));
     assert.equal(client.getServerVersion().version, metadata.version);
-    await t.test("bounds arguments before schema validation", async () => {
-      const args = { projectId: "invalid", changes: {} };
-      for (let i = 0; i < 126; i++) args[`extra${i}`] = i;
-      const atLimit = await client.callTool({ name: "update_protest", arguments: args });
-      assert.equal(atLimit.isError, true);
-      assert.match(atLimit.content[0].text, /Input validation error/);
-      args.extra126 = 126;
-      const overLimit = await client.callTool({ name: "update_protest", arguments: args });
-      assert.equal(overLimit.isError, true);
-      assert.match(overLimit.content[0].text, /more than the maximum of 128 elements/);
-    });
+    // Keep all calls in the parent test so its stdio client stays open through the roundtrip.
+    const args = { projectId: "invalid", changes: {} };
+    for (let i = 0; i < 126; i++) args[`extra${i}`] = i;
+    const atLimit = await client.callTool({ name: "update_protest", arguments: args });
+    assert.equal(atLimit.isError, true);
+    assert.match(atLimit.content[0].text, /Input validation error/);
+    args.extra126 = 126;
+    const overLimit = await client.callTool({ name: "update_protest", arguments: args });
+    assert.equal(overLimit.isError, true);
+    assert.match(overLimit.content[0].text, /more than the maximum of 128 elements/);
     const call = async (name, args = {}) => {
       const r = await client.callTool({ name, arguments: args });
       assert.ok(!r.isError, JSON.stringify(r));
@@ -60,22 +59,20 @@ test("MCP stdio creates, updates and exports real local materials without public
       "%PDF",
     );
     assert.ok((await call("prepare_publication")).issues.length > 0);
-    await t.test("accepts the complete bounded nested input", async () => {
-      const details = { ...exampleProject() };
-      for (const key of ["version", "id", "example", "privateNotes", "checks"]) delete details[key];
-      details.sources = Array.from({ length: 12 }, (_, index) => ({
-        title: `Fictional source ${index}`,
-        url: `https://example.invalid/source-${index}`,
-      }));
-      assert.equal(Object.keys(details).length, 21);
-      const replacement = await call("create_protest", { details, replaceCurrent: true });
-      await call("update_protest", { projectId: replacement.project.id, changes: details });
-      const saved = JSON.parse(await readFile(join(root, "project.json"), "utf8"));
-      for (const [key, value] of Object.entries(details)) assert.deepEqual(saved[key], value);
-      assert.deepEqual((await call("get_protest")).project.sources, details.sources);
-      assert.equal((await call("check_protest")).issues.length, 0);
-      assert.equal((await call("prepare_publication")).issues.length, 0);
-    });
+    const details = { ...exampleProject() };
+    for (const key of ["version", "id", "example", "privateNotes", "checks"]) delete details[key];
+    details.sources = Array.from({ length: 12 }, (_, index) => ({
+      title: `Fictional source ${index}`,
+      url: `https://example.invalid/source-${index}`,
+    }));
+    assert.equal(Object.keys(details).length, 21);
+    const replacement = await call("create_protest", { details, replaceCurrent: true });
+    await call("update_protest", { projectId: replacement.project.id, changes: details });
+    const saved = JSON.parse(await readFile(join(root, "project.json"), "utf8"));
+    for (const [key, value] of Object.entries(details)) assert.deepEqual(saved[key], value);
+    assert.deepEqual((await call("get_protest")).project.sources, details.sources);
+    assert.equal((await call("check_protest")).issues.length, 0);
+    assert.equal((await call("prepare_publication")).issues.length, 0);
   } finally {
     await client.close();
   }
